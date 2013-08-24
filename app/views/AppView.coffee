@@ -20,7 +20,6 @@ class window.AppView extends Backbone.View
     @model.on 'endGame', => @render()
 
   render: ->
-    console.log "rendering appView"
     @$el.children().detach()
     @$el.html @template(this.model.attributes)
 

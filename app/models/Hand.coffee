@@ -4,7 +4,8 @@ class window.Hand extends Backbone.Collection
 
   initialize: (array, @deck, @isDealer) ->
 
-  checkBlackJack: -> @scores()[1] == 21
+  checkBlackJack: -> #checks for player Black Jack after deal
+    @scores()[1] == 21
 
   hit: ->
     @add(@deck.pop()).last()
@@ -25,10 +26,18 @@ class window.Hand extends Backbone.Collection
     , 0
     if hasAce then [score, score + 10] else [score]
 
-  dealerTurn: ->
+  dealerTurn: (playerHasBlackJack) ->
     @at(0).flip()
-    return @trigger 'dealerBlackJack', this if @scores()[1] == 21
-    @delayedHit()
+
+    if playerHasBlackJack
+      if @scores()[1] == 21
+        @trigger 'tieBlackJack', this
+      else @trigger 'playerBlackJack', this
+
+    else if @scores()[1] == 21
+      @trigger 'dealerBlackJack', this
+
+    else @delayedHit()
 
   delayedHit: =>
     if @scores()[0] < 17
@@ -36,5 +45,10 @@ class window.Hand extends Backbone.Collection
         @hit()
         @delayedHit()
       , 600
-
+    else if @scores()[0] > 21
+      @trigger 'dealerBust', this
+    else if @scores()[0] == 21 or @scores()[1] == 21
+      @trigger 'dealer21', this
+    else
+      @trigger 'compareHands', this
 

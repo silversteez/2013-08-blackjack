@@ -10,12 +10,18 @@ class window.App extends Backbone.Model
     @checkBlackJack()
 
   newDeckAndHands: ->
+    #currently replaces the old deck with a fresh deck and hands for each new game
     @set 'deck', deck = new Deck()
     @set 'playerHand', playerHand = deck.dealPlayer()
     @set 'dealerHand', dealerHand = deck.dealDealer()
     playerHand.on 'playerBust', => @playerBust()
     playerHand.on '21', => @player21()
+    dealerHand.on 'tieBlackJack', => @tieBlackJack()
+    dealerHand.on 'playerBlackJack', => @playerBlackJack()
     dealerHand.on 'dealerBlackJack', => @dealerBlackJack()
+    dealerHand.on 'dealerBust', => @dealerBust()
+    dealerHand.on 'dealer21', => @dealer21()
+    dealerHand.on 'compareHands', => @compareHands()
 
   endGame: ->
     @set 'isEndGame', true
@@ -30,9 +36,15 @@ class window.App extends Backbone.Model
 
   checkBlackJack: ->
     if @get('playerHand').checkBlackJack()
-      @set 'isPlayerTurn', false
-      @set 'notification', "BLACK JACK! WOOOHOOO!!!"
-      @endGame()
+      @dealerTurn("playerHasBlackJack")
+
+  compareHands: ->
+    dealerScore = @get('dealerHand').scores()[0]
+    playerScore = @get('playerHand').scores()[0]
+
+    if dealerScore == playerScore then @tieGame()
+    else if dealerScore > playerScore then @dealerWin()
+    else @playerWin()
 
   playerBust: ->
     @set 'isPlayerTurn', false
@@ -44,14 +56,43 @@ class window.App extends Backbone.Model
     @set 'notification', "21! A winner is YOU!"
     @endGame()
 
-  dealerTurn: ->
+  playerBlackJack: -> #called by dealer hand if player has BJ and dealer does not
+    @set 'notification', "WOOHOO! BLACK JACK, BABY!!!"
+    @endGame()
+
+  dealerTurn: (playerHasBlackJack) ->
+    console.log playerHasBlackJack
     @set 'isPlayerTurn', false
     @set 'notification', "NOW IT'S MY TURN!!!"
     @trigger('startDealerTurn') #re-renders to disable the player's buttons
-    @get('dealerHand').dealerTurn()
+    @get('dealerHand').dealerTurn(playerHasBlackJack)
+
+  tieBlackJack: ->
+    @set 'notification', "We BOTH got Black Jack!? NUTS!!!"
+    @endGame()
 
   dealerBlackJack: ->
-    @set 'isEndGame', true
     @set 'notification', "BLACK JACK, BITCH! YOU LOSE!"
     @endGame()
+
+  dealer21: ->
+    @set 'notification', "WHOA! I gots 21. You lose."
+    @endGame()
+
+  dealerBust: ->
+    @set 'notification', "I DONE BUSTED! You win..."
+    @endGame()
+
+  tieGame: ->
+    @set 'notification', "WTF, a tie?"
+    @endGame()
+
+  playerWin: ->
+    @set 'notification', "Aw, shucks! You won!"
+    @endGame()
+
+  dealerWin: ->
+    @set 'notification', "You lose, loser!"
+    @endGame()
+
 
