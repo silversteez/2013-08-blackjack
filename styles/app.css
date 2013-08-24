@@ -18,3 +18,7 @@
 .hidden {
   display: none;
 }
+
+.notifications {
+  margin: 20px;
+}
