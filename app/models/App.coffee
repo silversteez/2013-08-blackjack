@@ -53,15 +53,13 @@ class window.App extends Backbone.Model
 
   player21: ->
     @set 'isPlayerTurn', false
-    @set 'notification', "21! A winner is YOU!"
-    @endGame()
+    @dealerTurn()
 
   playerBlackJack: -> #called by dealer hand if player has BJ and dealer does not
     @set 'notification', "WOOHOO! BLACK JACK, BABY!!!"
     @endGame()
 
   dealerTurn: (playerHasBlackJack) ->
-    console.log playerHasBlackJack
     @set 'isPlayerTurn', false
     @set 'notification', "NOW IT'S MY TURN!!!"
     @trigger('startDealerTurn') #re-renders to disable the player's buttons

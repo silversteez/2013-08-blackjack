@@ -5,7 +5,7 @@ class window.Hand extends Backbone.Collection
   initialize: (array, @deck, @isDealer) ->
 
   checkBlackJack: -> #checks for player Black Jack after deal
-    @scores()[1] == 21
+    @bestScore() == 21
 
   hit: ->
     @add(@deck.pop()).last()
@@ -26,6 +26,12 @@ class window.Hand extends Backbone.Collection
     , 0
     if hasAce then [score, score + 10] else [score]
 
+  bestScore: ->
+    scores = @scores()
+    if scores[1] and scores[1] > scores[0] and scores[1] <= 21
+      return scores[1]
+    else return scores[0]
+
   dealerTurn: (playerHasBlackJack) ->
     @at(0).flip()
 
@@ -40,14 +46,17 @@ class window.Hand extends Backbone.Collection
     else @delayedHit()
 
   delayedHit: =>
-    if @scores()[0] < 17
+    #base logic on optimum hand score
+    score = @bestScore()
+
+    if score < 17
       setTimeout =>
         @hit()
         @delayedHit()
       , 600
-    else if @scores()[0] > 21
+    else if score > 21
       @trigger 'dealerBust', this
-    else if @scores()[0] == 21 or @scores()[1] == 21
+    else if score == 21
       @trigger 'dealer21', this
     else
       @trigger 'compareHands', this
