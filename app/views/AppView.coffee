@@ -27,7 +27,7 @@ class window.AppView extends Backbone.View
     @$('.hit-button').attr('disabled', 'true') if !this.model.get 'isPlayerTurn'
     @$('.stand-button').attr('disabled', 'true') if !this.model.get 'isPlayerTurn'
 
-    @$('.new-game-button').removeClass('hidden') if !this.model.get 'isPlayerTurn'
+    @$('.new-game-button').removeClass('hidden') if this.model.get 'isEndGame'
 
     @$('.player-hand-container').html new HandView(collection: @model.get 'playerHand').el
     @$('.dealer-hand-container').html new HandView(collection: @model.get 'dealerHand').el
